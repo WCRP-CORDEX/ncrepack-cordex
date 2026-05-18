@@ -1,4 +1,6 @@
-# `cmip7repack` and `check_cmip7_packing`
+# ncrepack-cordex
+
+`ncrepack-cordex` is a fork of [cmip7repack](https://github.com/NCAS-CMS/cmip7_repack) with slightly different default behaviour and to be used in CORDEX.
 
 `cmip7repack` is a command-line tool for Unix-like platforms, bespoke
 to CMIP, which can be used by the modelling groups, prior to dataset
@@ -12,6 +14,61 @@ but read many times).
 bespoke to CMIP, which can be used to check if datasets have a
 sufficiently good internal structure. Any dataset that has been
 output by `cmip7repack` is guaranteed to pass the checks.
+
+# `ncrepack-cordex` documentation
+
+`ncrepack-cordex` is a copy of `cmip7repack` with a different default
+policy for rechunking the main data variable (identified by the global
+attribute `variable_id`).
+
+### Default behavior
+
+For the main data variable only:
+
+* Files with `_1hr_` in the filename are rechunked so that the first
+  chunk dimension (time) is `6`.
+* Files with `_6hr_` in the filename are rechunked so that the first
+  chunk dimension (time) is `4`.
+* All other files leave the main data variable untouched.
+
+In those filename-driven cases, only the first chunk dimension is
+changed; all other chunk dimensions are preserved.
+
+### Option precedence for main data variable
+
+* `-c CHUNK` has highest priority and fully sets the chunk shape (for
+  example `-c 6x50x50`).
+* `-d SIZE` overrides the filename-driven defaults and uses the same
+  size-based chunking algorithm as `cmip7repack`.
+* If neither `-c` nor `-d` is provided, the filename-driven defaults
+  are used.
+
+### Compression default
+
+`ncrepack-cordex` defaults to zlib deflation level `1`.
+This can still be overridden with `-z`.
+
+### Synopsis
+
+```
+ncrepack-cordex [-c chunk] [-d size] [-h] [-o] [-V] [-x] [-z n] FILE [FILE ...]
+```
+
+### Examples
+
+```
+# Filename-driven default: first chunk dimension set to 6
+ncrepack-cordex file_1hr_frequency.nc
+
+# Filename-driven default: first chunk dimension set to 4
+ncrepack-cordex file_6hr_frequency.nc
+
+# Override filename defaults with size-based behavior
+ncrepack-cordex -d 8388608 file_1hr_frequency.nc
+
+# Fully custom chunk shape
+ncrepack-cordex -c 6x50x50 file.nc
+```
         
 # Citation
 
@@ -19,8 +76,8 @@ Hassell, D., & Cimadevilla Alvarez, E. (2026). cmip7repack: Repack CMIP7 netCDF-
 
 # Installation
 
-To install `cmip7repack` and `check_cmip7_packing`, download the scripts
-with those names from this repository, give them executable
+To install `cmip7repack`, `ncrepack-cordex`, and `check_cmip7_packing`,
+download the scripts with those names from this repository, give them executable
 permissions, and make them available from a location in the `PATH`
 environment variable. _These tools will soon be available via `pip` and `conda`._
 

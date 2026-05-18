@@ -69,7 +69,7 @@ include-package-data = true
 license-files = ["LICENSE"]
 packages = ["cmip7_repack"]
 zip-safe = false  # possibly yes
-script-files = ["cmip7_repack/cmip7repack", "cmip7_repack/check_cmip7_packing"]
+script-files = ["cmip7_repack/cmip7repack", "cmip7_repack/ncrepack-cordex", "cmip7_repack/check_cmip7_packing"]
 
 [tool.setuptools.dynamic]
 readme = {file = "README.md", content-type = "text/markdown"}
