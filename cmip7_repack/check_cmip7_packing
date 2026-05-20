@@ -236,7 +236,6 @@ the extent permitted by law.
     if args.v:
         print(f"{iam}: date-time: {datetime.datetime.now()}\n")
 
-    four_MiB = 4 * (2**20)
     ok = []
     error = []
 

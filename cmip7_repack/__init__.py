@@ -30,6 +30,8 @@ def check_cmip7_packing(filename):
     ParseError
         If any exception is raised during the file parsing by pyfive.
     """
+    four_MiB = 4 * (2**20)
+
     # Open the file with pyfive
     try:
         f = pyfive.File(filename)
