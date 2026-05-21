@@ -736,30 +736,44 @@ do
                 fi
             else
                 # Filename-driven rechunking for the first dimension only.
+                # First check if the existing chunk size already meets the 4 MiB
+                # minimum; if so, leave the data variable alone.
+                original_chunk_size=0
                 if [ "$contiguous" = "false" ]; then
-                    new_chunk_shape=("${chunk_shape[@]}")
-                else
-                    new_chunk_shape=("${data_shape[@]}")
+                    wordsize=$(get_wordsize)
+                    original_chunk_size=$wordsize
+                    for n in "${!chunk_shape[@]}"
+                    do
+                        original_chunk_size=$((original_chunk_size * chunk_shape[n]))
+                    done
                 fi
 
-                new_chunk_shape[0]=$target_time_chunk
-                for n in "${!new_chunk_shape[@]}"
-                do
-                    if [ "${new_chunk_shape[n]}" -gt "${data_shape[n]}" ]; then
-                        new_chunk_shape[n]=${data_shape[n]}
+                if [ "$original_chunk_size" -lt "$size" ]; then
+                    if [ "$contiguous" = "false" ]; then
+                        new_chunk_shape=("${chunk_shape[@]}")
+                    else
+                        new_chunk_shape=("${data_shape[@]}")
                     fi
-                done
 
-                CHUNK=${new_chunk_shape[*]}
-                CHUNK=${CHUNK// /x}
+                    new_chunk_shape[0]=$target_time_chunk
+                    for n in "${!new_chunk_shape[@]}"
+                    do
+                        if [ "${new_chunk_shape[n]}" -gt "${data_shape[n]}" ]; then
+                            new_chunk_shape[n]=${data_shape[n]}
+                        fi
+                    done
 
-                current_chunk_shape="${chunk_shape[*]}"
-                if [ "$contiguous" = "true" ] || [ "$CHUNK" != "${current_chunk_shape// /x}" ]; then
-                    data="-f ${variable}:SHUF"
-                    data="$data -f ${variable}:GZIP=$gzip"
-                    data="$data -f ${variable}:FLET"
-                    data="$data -l ${variable}:CHUNK=$CHUNK"
-                    rechunk="true"
+                    CHUNK=${new_chunk_shape[*]}
+                    CHUNK=${CHUNK// /x}
+
+                    current_chunk_shape="${chunk_shape[*]}"
+                    if [ "$contiguous" = "true" ] || [ "$CHUNK" != "${current_chunk_shape// /x}" ]; then
+                        data="-f ${variable}:SHUF"
+                        data="$data -f ${variable}:GZIP=$gzip"
+                        data="$data -f ${variable}:FLET"
+                        data="$data -l ${variable}:CHUNK=$CHUNK"
+                        rechunk="true"
+                    fi
                 fi
             fi
 

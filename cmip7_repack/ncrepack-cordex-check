@@ -17,9 +17,9 @@ if __name__ == "__main__":
 
     start0 = time.time()
 
-    iam = "check_cmip7_packing"
-    __version__ = "1.0"
-    __date__ = "2026-03-03"
+    iam = "ncrepack-cordex-check"
+    __version__ = "1.0rc1"
+    __date__ = "2026-05-21"
 
     minimum_version = Version("1.1.1")
     pyfive_version = Version(version("pyfive"))
@@ -36,7 +36,7 @@ if __name__ == "__main__":
 .
 .SH NAME
 
-{iam} - check that datasets meet the CMIP7 internal packing requirements.
+{iam} - check that datasets meet the CORDEX internal packing requirements.
 
 .SH SYNOPSIS
 
@@ -57,24 +57,18 @@ variable's "bounds" attribute), if it exists, has a single chunk or is
 contiguous.
 
 .IP "\\(em" 2
-Check that data variable (identified by the global "variable_id"
-attribute), if it exists, has a single chunk, is contiguous, or has an
-uncompressed chunk size of at least 41943044 bytes (i.e. 4
-MiB). However, the check will still pass for smaller chunks if
-increasing the chunk's shape by one element along the leading
-(i.e. slowest moving) dimension of the data would result in a chunk
-size of at least 4 MiB.
+Check that the internal file metadata is collated to a contiguous block
+near the start of the file, before all of the variables' data chunks.
 
 .IP "\\(em" 2
-Check that all of the internal file metadata is collated to a
-contiguous block near the start of the file, before all of the
-variables' data chunks.
+\fBWarn\fR (but do not fail) if the data variable (identified by the
+global "variable_id" attribute) has an uncompressed chunk size smaller
+than 4 MiB and more than one chunk. A warning recommending the use of a
+larger chunk size is printed, but no error is raised and the file is not
+failed on this basis alone.
 
 .IP "" 0
 
-Any input \fIFILE\fR that has been output by \fBcmip7repack\fR is
-guaranteed to pass these checks.
-        
 .SH DEPENDENCIES
 
 Requires Python 3.10 or later, and that the Python libraries
@@ -105,11 +99,13 @@ Print version number and exit.
 . SH EXIT STATUS
 
 .IP \fB0\fR
-All input files meet the CMIP7 internal file packing requirements.
+All input files meet the packing requirements (data variable chunk size
+warnings do not affect the exit code).
 
 .IP \fB1\fR
-At least one input file does not meet the CMIP7 internal file packing
-requirements. All files were checked.
+At least one input file does not meet the packing requirements (time
+coordinate/bounds chunking or consolidated metadata). All files were
+checked.
 
 .IP \fB2\fR
 An incorrect command-line option. No input files are checked.
@@ -126,46 +122,16 @@ files are checked.
 
 .SH EXAMPLES
 
-\fB1.\fR Testing two files that both pass the checks. The exit code is
-0 because all files passed.
+\fB1.\fR Testing two files. The data variable in file2.nc has small
+chunks; a warning is printed but the exit code is still 0.
 
 .nf
-    \fB$ check_cmip7_packing file1.nc file2.nc\fR
+    \fB$ {iam} file1.nc file2.nc\fR
     PASS: File 'file1.nc'
     PASS: File 'file2.nc'
+    WARN: File 'file2.nc' data variable 'pr' has uncompressed chunk size 110592 B (consider using at least 4194304 B)
     \fB$ echo $?\fR
     0
-.fi
-
-\fB2.\fR Repeating the test of example \fB1.\fR with verbose mode
-enabled.
-
-.nf
-    \fB$ check_cmip7_packing -v file1.nc file2.nc\fR
-    check_cmip7_packing: Version {__version__} at /usr/bin/check_cmip7_packing
-    check_cmip7_packing: pyfive: Version 1.0.0 at /usr/bin/pyfive/__init__.py
-    check_cmip7_packing: date-time: 2025-11-13 09:31:57.232149
-
-    PASS: File 'file1.nc'
-    PASS: File 'file2.nc'
-    
-    check_cmip7_packing: time taken: 0.0622 seconds
-    check_cmip7_packing: 2/2 files passed, 0/2 files failed
-.fi
-
-\fB3.\fR Testing five files, one of which (file5.nc) passes the
-checks, and the other four fail at least one check each. The exit code
-is 1 because not all files passed.
-
-.nf
-    \fB$ check_cmip7_packing file[3-7].nc\fR
-    PASS: File 'file5.nc'
-    FAIL: File 'file3.nc' does not have consolidated internal metadata
-    FAIL: File 'file4.nc' time coordinates variable 'time' has 6000 chunks (expected 1 chunk or contiguous)
-    FAIL: File 'file6.nc' time bounds variable 'time_bnds' has 1800 chunks (expected 1 chunk or contiguous)
-    FAIL: File 'file7.nc' data variable 'ps' has uncompressed chunk size 411840 B (expected at least 4111936 B or 1 chunk or contiguous)
-    \fB$ echo $?\fR
-    1
 .fi
 
 .SH AUTHORS
@@ -181,15 +147,15 @@ you are free to change and redistribute it. There is NO WARRANTY, to
 the extent permitted by law.
 
 .SH SEE ALSO
-\fBcmip7repack\fR(1), \fBh5stat\fR(1), \fBh5dump\fR(1),
-\fBncdump\fR(1)
+\fBncrepack-cordex\fR(1), \fBcheck_cmip7_packing\fR(1), \fBh5stat\fR(1),
+\fBh5dump\fR(1), \fBncdump\fR(1)
 
 """
         p = subprocess.Popen(
             [
                 "man",
                 "-r",
-                " Manual page check_cmip7_packing(1) ?ltline %lt?L/%L.:",
+                f" Manual page {iam}(1) ?ltline %lt?L/%L.:",
                 "-l",
                 "-",
             ],
@@ -200,9 +166,9 @@ the extent permitted by law.
     # Parse command line options
     parser = argparse.ArgumentParser(
         prog=iam,
-        description="Check that datasets meet the CMIP7 internal packing requirements",
+        description="Check that datasets meet the CORDEX internal packing requirements",
     )
-    parser.add_argument("FILE", nargs="+", help="One or more CMIP7 files to check.")
+    parser.add_argument("FILE", nargs="+", help="One or more CORDEX files to check.")
     parser.add_argument(
         "-v",
         action="store_true",
@@ -222,7 +188,7 @@ the extent permitted by law.
         print(f"{iam}: pyfive: Version {pyfive_version} at {pyfive.__file__}")
 
     if len(sys.argv) == 1:
-        print("usage: check_cmip7_packing [-h] [-V] [-v] FILE [FILE ...]")
+        print(f"usage: {iam} [-h] [-V] [-v] FILE [FILE ...]")
         print("Full man page with -h")
         sys.exit(2)
 
@@ -234,6 +200,7 @@ the extent permitted by law.
     four_MiB = 4 * (2**20)
     ok = []
     error = []
+    warn = []
 
     # Loop round input files
     for filename in args.FILE:
@@ -290,14 +257,14 @@ the extent permitted by law.
                         )
                         continue
 
-        # Check for the data variable having one chunks of at least ~4MiB
+        # Warn (but do not fail) if the data variable has small chunks
         if "variable_id" in f.attrs:
             variable_id = str(np.array(f.attrs["variable_id"]).astype("U"))
             if variable_id in f:
                 d = f[variable_id]
+                chunks = d.chunks
                 if chunks is not None and d.id.get_num_chunks() > 1:
                     # At least two chunks
-                    chunks = d.chunks
                     wordsize = d.dtype.itemsize
                     chunksize = prod(chunks) * wordsize
 
@@ -306,14 +273,12 @@ the extent permitted by law.
                         lee_way = prod(chunks[1:]) * wordsize
 
                     if chunksize + lee_way < four_MiB:
-                        error.append(
-                            f"FAIL: File {filename!r} data variable "
+                        warn.append(
+                            f"WARN: File {filename!r} data variable "
                             f"{variable_id!r} has uncompressed chunk size "
-                            f"{chunksize} B (expected at least "
-                            f"{four_MiB - lee_way} B or 1 chunk "
-                            "or contiguous)"
+                            f"{chunksize} B (consider using at least "
+                            f"{four_MiB} B)"
                         )
-                        continue
 
         # Still here? Then the file has passed all of the checks.
         ok.append(f"PASS: File {filename!r}")
@@ -324,11 +289,15 @@ the extent permitted by law.
     if error:
         print("\n".join(error))
 
+    if warn:
+        print("\n".join(warn))
+
     if args.v:
         print(f"\n{iam}: time taken: {time.time() - start0:.3} seconds")
         print(
             f"{iam}: {len(ok)}/{len(args.FILE)} files passed, "
-            f"{len(error)}/{len(args.FILE)} files failed"
+            f"{len(error)}/{len(args.FILE)} files failed, "
+            f"{len(warn)}/{len(args.FILE)} files warned"
         )
 
     if error:
