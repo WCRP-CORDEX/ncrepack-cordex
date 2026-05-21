@@ -15,6 +15,20 @@ bespoke to CMIP, which can be used to check if datasets have a
 sufficiently good internal structure. Any dataset that has been
 output by `cmip7repack` is guaranteed to pass the checks.
 
+# Feature comparison
+
+| Feature | `cmip7repack` | `ncrepack-cordex` |
+|---------|:---:|:---:|
+| Rechunk `time` coordinate to a single chunk | ✅ | ✅ |
+| Rechunk time-bounds variable to a single chunk | ✅ | ✅ |
+| Collate internal file metadata | ✅ | ✅ |
+| Shuffle + zlib + Fletcher32 on rechunked vars | ✅ | ✅ |
+| Size-based data variable rechunking (`-d`) | ✅ | ✅ |
+| Minimal data variable chunk size is 4 MB | ✅ | ❌ |
+| Custom chunk shape (`-c CHUNK`) | ❌ | ✅ |
+| Filename-driven rechunking (`_1hr_` → 6, `_6hr_` → 4) | ❌ | ✅ |
+| Default zlib compression level | 4 | 1 |
+
 # `ncrepack-cordex` documentation
 
 `ncrepack-cordex` is a copy of `cmip7repack` with a different default
