@@ -1,12 +1,8 @@
 ---
-name: cmip7repack
+name: ncrepack-cordex
 channels:
   - conda-forge
   - nodefaults
 
 dependencies:
-  - python >=3.10
-  - hdf5
-  - pip
-  - packaging
-  - pyfive >=1.1.1
+  - cmip7_repack
