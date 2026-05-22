@@ -2,11 +2,7 @@
 
 set -euo pipefail
 
-REPO_OWNER="WCRP-CORDEX"
-REPO_NAME="ncrepack-cordex"
-REPO_BRANCH="cordex"
-
-RAW_BASE_URL="https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/${REPO_BRANCH}/cmip7_repack"
+RAW_BASE_URL="https://wcrp-cordex.github.io/ncrepack-cordex"
 
 if ! command -v cmip7repack >/dev/null 2>&1; then
     echo "Error: cmip7repack is not in PATH. Install cmip7_repack first." >&2
