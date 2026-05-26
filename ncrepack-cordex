@@ -20,8 +20,8 @@
 # https://github.com/WCRP-CORDEX/ncrepack-cordex/issues
 # 
 # ====================================================================
-vn=0.1
-release_date="2026-05-22"
+vn=0.2
+release_date="2026-05-26"
 
 iam_path=$(which "$0")
 iam=$(basename "$iam_path")
