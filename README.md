@@ -26,7 +26,7 @@ output by `cmip7repack` is guaranteed to pass the checks.
 | Size-based data variable rechunking (`-d`) | ✅ | ✅ |
 | Minimal data variable chunk size is 4 MB | ✅ | ❌ |
 | Custom chunk shape (`-c CHUNK`) | ❌ | ✅ |
-| Filename-driven rechunking (`_1hr_` → 6, `_6hr_` → 4) | ❌ | ✅ |
+| Filename-driven rechunking (`_1hr_`/`_mon_` → 6, `_6hr_` → 4) | ❌ | ✅ |
 | Default zlib compression level | 4 | 1 |
 
 # `ncrepack-cordex` documentation
@@ -43,9 +43,11 @@ For the main data variable only:
   4 MB, it is left untouched. Otherwise:
 * Files with `_1hr_` in the filename are rechunked so that the first
   chunk dimension (time) is `6`.
+* Files with `_mon_` in the filename are rechunked so that the first
+  chunk dimension (time) is `6`.
 * Files with `_6hr_` in the filename are rechunked so that the first
   chunk dimension (time) is `4`.
-* All other files (day, mon) are left with the main data variable untouched.
+* All other files (e.g., day) are left with the main data variable untouched.
 
 In those filename-driven cases, only the first chunk dimension is
 changed; all other chunk dimensions are preserved.
@@ -53,7 +55,7 @@ changed; all other chunk dimensions are preserved.
 ### Option precedence for main data variable
 
 * `-c CHUNK` has highest priority and fully sets the chunk shape (for
-  example `-c 6x50x50`).
+  example `-c 100x100x100`).
 * `-d SIZE` overrides the filename-driven defaults and uses the same
   size-based chunking algorithm as `cmip7repack`.
 * If neither `-c` nor `-d` is provided, the filename-driven defaults
@@ -75,6 +77,9 @@ ncrepack-cordex [-c chunk] [-d size] [-h] [-o] [-V] [-x] [-z n] FILE [FILE ...]
 ```
 # Filename-driven default: first chunk dimension set to 6
 ncrepack-cordex file_1hr_frequency.nc
+
+# Filename-driven default: first chunk dimension set to 6
+ncrepack-cordex file_mon_frequency.nc
 
 # Filename-driven default: first chunk dimension set to 4
 ncrepack-cordex file_6hr_frequency.nc

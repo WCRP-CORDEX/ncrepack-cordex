@@ -630,12 +630,14 @@ do
     data=""
     # Default filename-driven data variable policy:
     #   *_1hr_*  -> force chunk size 6 in first (time) dimension.
+    #   *_mon_*  -> force chunk size 6 in first (time) dimension.
     #   *_6hr_*  -> force chunk size 4 in first (time) dimension.
     #   otherwise -> leave data variable untouched.
     # Overrides: -d overrides filename policy, and -c overrides both.
     target_time_chunk=""
     case "$file" in
         *_1hr_*) target_time_chunk=6 ;;
+        *_mon_*) target_time_chunk=6 ;;
         *_6hr_*) target_time_chunk=4 ;;
     esac
 
