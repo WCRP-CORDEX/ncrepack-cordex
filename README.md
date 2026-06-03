@@ -2,6 +2,9 @@
 
 `ncrepack-cordex` is a fork of [cmip7repack](https://github.com/NCAS-CMS/cmip7_repack) with slightly different default behaviour and to be used in CORDEX.
 
+> [!TIP]
+> CORDEX files can also be processed with the standard [cmip7repack](https://github.com/NCAS-CMS/cmip7_repack) tool and will pass all tests (except for a warning on the deflation level 4 instead of 1) and will, in general, have a smaller number of larger chunks.
+
 `cmip7repack` is a command-line tool for Unix-like platforms, bespoke
 to CMIP, which can be used by the modelling groups, prior to dataset
 publication, to "repack" their files (i.e. to re-organise the file
@@ -15,7 +18,7 @@ bespoke to CMIP, which can be used to check if datasets have a
 sufficiently good internal structure. Any dataset that has been
 output by `cmip7repack` is guaranteed to pass the checks.
 
-# Feature comparison
+## Feature comparison
 
 | Feature | `cmip7repack` | `ncrepack-cordex` |
 |---------|:---:|:---:|
@@ -29,7 +32,7 @@ output by `cmip7repack` is guaranteed to pass the checks.
 | Filename-driven rechunking (`_1hr_`/`_mon_` → 6, `_6hr_` → 4) | ❌ | ✅ |
 | Default zlib compression level | 4 | 1 |
 
-# `ncrepack-cordex` documentation
+## `ncrepack-cordex` documentation
 
 `ncrepack-cordex` is a copy of `cmip7repack` with a different default
 policy for rechunking the main data variable (identified by the global
@@ -88,14 +91,14 @@ ncrepack-cordex file_6hr_frequency.nc
 ncrepack-cordex -d 8388608 file_1hr_frequency.nc
 
 # Fully custom chunk shape
-ncrepack-cordex -c 6x50x50 file.nc
+ncrepack-cordex -c 100x100x100 file.nc
 ```
         
-# Citation
+## Citation
 
 Hassell, D., & Cimadevilla Alvarez, E. (2026). cmip7repack: Repack CMIP7 netCDF-4 datasets. Zenodo. https://doi.org/10.5281/zenodo.17550919
 
-# Installation
+## Installation
 
 To install `ncrepack-cordex` and `ncrepack-cordex-check`, first install `cmip7-repack`, then
 download the scripts with those names from this repository, give them executable
@@ -105,7 +108,7 @@ To do this, the `install.sh` script is provided for convenience.
 
 In summary:
 
-```
+```bash
 conda install -c conda-forge cmip7-repack
 bash <(curl -L https://wcrp-cordex.github.io/ncrepack-cordex/install.sh)
 ```
